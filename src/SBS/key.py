@@ -1,11 +1,11 @@
 import numpy as np
-from audiomessage import AudioMessage as audiomessage
+from src.SBS.audiomessage import AudioMessage as audiomessage
 
 class Key(audiomessage):
 
     def __init__(self, files_path=None):
         super().__init__(files_path)
-    
+
     def __add__(self, other) -> 'Key':
         """ Add two messages
 

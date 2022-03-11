@@ -1,14 +1,15 @@
+from email.mime import audio
 import numpy as np
-from audiomessage import AudioMessage as audiomessage
-from key import Key as k
-from response import Response as response
+from src.SBS.audiomessage import AudioMessage as audiomessage
+from src.SBS.key import Key as k
+from src.SBS.decoding.response import Response as response
 
-class Message(audiomessage):
+class Received(audiomessage):
     
     def __init__(self, files_path=None):
         super().__init__(files_path)
 
-    def __add__(self, other) -> 'Message':
+    def __add__(self, other) -> 'Received':
         """ Add two messages
 
         Args:
@@ -17,8 +18,8 @@ class Message(audiomessage):
         Returns:
             Message: new message
         """
-        if isinstance(other, Message):
-            message = Message()
+        if isinstance(other, Received):
+            message = Received()
             message.message_left = np.concatenate([self.message_left, other.message_left])
             message.message_right = np.concatenate([self.message_right, other.message_right])
             return message

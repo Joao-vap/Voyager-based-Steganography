@@ -1,9 +1,10 @@
-from src.SBS.decoding.message import Message
-from src.SBS.decoding import Key
+from src.SBS.decoding.received import Received
+from src.SBS.key import Key
+from src.SBS.encoding.sender import Sender
 
 # receive messages
-mymessage1 = Message(files_path=['./audio/audio_1.mp3', './audio/audio_0.mp3'])
-mymessage2 = Message(files_path='./audio')
+mymessage1 = Received(files_path=['./audio/audio_1.mp3', './audio/audio_0.mp3'])
+mymessage2 = Received(files_path='./audio')
 
 # instatiate Key
 key = Key(files_path=['./audio/audio_1.mp3'])
@@ -18,3 +19,5 @@ res = mymessage3 - key
 res.plot_from_leftChannel(6)
 
 ####################### make the inverse process #############################
+
+resp = Sender(images_path=['./audio/audio_1.mp3'])

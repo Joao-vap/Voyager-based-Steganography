@@ -1,10 +1,10 @@
 from matplotlib import pyplot as plt
 import numpy as np
-from audiomessage import AudioMessage as audiomessage
+from src.SBS.audiomessage import AudioMessage as audiomessage
 
 class Response(audiomessage):
 
-    def __init__(self, files_path=None):
+    def __init__(self, files_path=None, images_path=None):
         super().__init__(files_path)
     
     @property
@@ -63,7 +63,6 @@ class Response(audiomessage):
             str: string representation of message
         """
         return (self.message_left.__repr__(), self.message_right.__repr__())
-
     
     def plot_from_leftChannel(self, index):
         """ Plot a matrix from the left channel
