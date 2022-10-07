@@ -47,7 +47,6 @@ class Messenger(ABC):
         """
         return (self.message_left[key], self.message_right[key])
 
-
     def __iter__(self) -> 'list[np.ndarray]':
         """ Return iterator of message
 
@@ -118,6 +117,7 @@ class Messenger(ABC):
             files.append(files_path + '/' + file)
         return files
     
+    @abstractmethod
     def _getMessageFromFiles(self, files) -> list:
         """ Return message from files
         
@@ -127,13 +127,7 @@ class Messenger(ABC):
         Returns:
             list: message from files
         """
-        # get all messages from files
-        message_left, message_rigth = [], []
-        for file in files:
-            message_l, message_r = self._getMessageFromFile(file)
-            message_left.append(message_l)
-            message_rigth.append(message_r)
-        return message_left, message_rigth
+        pass
     
     @abstractmethod
     def _getMessageFromFile(self, file) -> np.ndarray:
@@ -150,4 +144,43 @@ class Messenger(ABC):
         """
         # concatenate all messages
         return np.concatenate(messages)
+    
+    def sum_difsize_lists(list1, list2):
+        """ Return sum of two lists with different size
         
+        Args:
+            list1 (list): list 1
+            list2 (list): list 2
+        
+        Returns:
+            list: sum of two lists
+        """
+        # get size of list 1
+        size1 = len(list1)
+        # get size of list 2
+        size2 = len(list2)
+        # set maxlist
+        if size1 > size2:
+            listmax = list1
+        else:
+            listmax = list2
+        # get size of bigger list
+        size = min(size1, size2)
+        # get sum of two lists
+        sum_list = [list1[i] + list2[i] for i in range(size)]
+        for i in range(size, len(listmax)):
+            sum_list.append(listmax[i])
+        return sum_list
+
+    def create_mp3_file(self, path, sample_width=1, sr=44100) -> str:
+        """ Create mp3 file from message
+
+        Args:
+            path (str): path to save mp3 file
+            sr (int): sampling rate
+        """
+        x = np.array([self.message_left,self.message_right])
+        channels = 2 if (x.ndim == 2 and x.shape[0] == 2) else 1
+        y = np.int16(x)
+        song = pd.AudioSegment(y.tobytes(), frame_rate=sr, sample_width=sample_width, channels=channels)
+        song.export(path, format="mp3", bitrate="320k")

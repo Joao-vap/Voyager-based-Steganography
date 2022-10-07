@@ -5,6 +5,12 @@ from src.SBS.key import Key as k
 from src.SBS.decoding.response import Response as response
 
 class Received(audiomessage):
+
+    """
+    Class to represent a Received message
+    which is a message composed of a key and a response
+    added together.
+    """
     
     def __init__(self, files_path=None):
         super().__init__(files_path)
@@ -49,8 +55,6 @@ class Received(audiomessage):
                 key = other.message_right[:len(self)]
                 res.message_right = self.message_right - key
 
-            print(res.message_left.shape)
-            print(res.message_right.shape)
             return res
 
     def __repr__(self) -> str:

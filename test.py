@@ -1,23 +1,48 @@
+from audioop import tostereo
 from src.SBS.decoding.received import Received
 from src.SBS.key import Key
-from src.SBS.encoding.sender import Sender
+from src.SBS.encoding.send import Send
 
-# receive messages
-mymessage1 = Received(files_path=['./audio/audio_1.mp3', './audio/audio_0.mp3'])
-mymessage2 = Received(files_path='./audio')
+# # receive messages
+# mymessage1 = Received(files_path=['./audio/audio_1.mp3', './audio/audio_0.mp3'])
+# mymessage2 = Received(files_path='./audio')
 
 # instatiate Key
-key = Key(files_path=['./audio/audio_1.mp3'])
+# key = Key(files_path=['./audio/HeartlessBastards.mp3'])
 
-# add messages if different sources
-mymessage3 = mymessage1 + mymessage2
+# # add messages if different sources
+# mymessage3 = mymessage1 + mymessage2
 
-# Create response object by stracting key from message
-res = mymessage3 - key
+# # Create response object by stracting key from message
+# res = mymessage3 - key
 
-# plot results (list of matrixes with possible images)
-res.plot_from_leftChannel(6)
+# # plot results (list of matrixes with possible images)
+# res.plot_from_leftChannel(6)
 
 ####################### make the inverse process #############################
 
-resp = Sender(images_path=['./audio/audio_1.mp3'])
+key = Key(files_path=['./audio/HeartlessBastards.mp3'])
+resp = Send(images_path=['./image/Template-Needs.png', './image/LogoName.jpg'])
+
+# print(resp.message_left.shape)
+# print(resp.message_right.shape)
+# print(key.message_left.shape)
+# print(key.message_right.shape)
+
+# toSend = resp + key
+
+# toSend.add_sep_and_div()
+
+mp3_path = resp.create_mp3_file(path='./audio/message_toSend.mp3', sample_width=2)
+mp3_path = key.create_mp3_file(path='./audio/key_toSend.mp3', sample_width=2)
+
+#received = Received(files_path=['./audio/audio_toSend.mp3'])
+
+# message = received - key
+
+# mp3_path = message.create_mp3_file(path='./audio/message_received.mp3')
+
+# print(resp.message_left.shape)
+# print(resp.message_right.shape)
+# print(key.message_left.shape)
+# print(key.message_right.shape)

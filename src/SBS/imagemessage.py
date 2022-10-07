@@ -3,6 +3,7 @@ import numpy as np
 import pydub as pd
 from src.SBS.messenger import Messenger as messenger
 from abc import ABC, abstractmethod
+from PIL import Image
 
 class ImageMessage(messenger, ABC):
 
@@ -10,7 +11,31 @@ class ImageMessage(messenger, ABC):
 
     def __init__(self, images_path=None):
         super().__init__(images_path)
+        self.image_divider = self._make_divider()
+        self.line_separator = self.make_separator()
 
+    def _make_divider(self):
+        """ Return divider for message,
+        this is inspired in voyager diveder and
+        consists in an zig-zag pattern
+        """
+        divider = np.array([])
+        for i in range(0, 512):
+            if i % 2 == 0:
+                divider = np.append(divider, 3)
+            else:
+                divider = np.append(divider, -3)
+        return divider
+    
+    def make_separator(self):
+        """ Return message with line separator that is
+        a peak and a fall
+        """
+        separator = np.array([])
+        separator = np.append(separator, 2)
+        separator = np.append(separator, -2)
+        return separator
+        
     @abstractmethod    
     def __add__(self, other):
         """ Add two messages
@@ -25,21 +50,60 @@ class ImageMessage(messenger, ABC):
         """ Return string representation of message
         """
         pass
-    
-    def _getMessageFromFile(self, file) -> np.ndarray:
-        """ Return message from mp3 file
+
+    def _getMessageFromFiles(self, files) -> list:
+        """ Return message from image files,
+        divide calls beetween left and right
 
         Args:
-            file (str): path of mp3 file
+            files (list): paths of image files
 
         Returns:
-            np.ndarray: message from mp3 file
+            list: messages from image files
         """
-        # get message from mp3 file
-        # mp3 = pd.AudioSegment.from_mp3(f"{file}")
-        # left, right = mp3.split_to_mono()[0], mp3.split_to_mono()[1]
-        left = np.array([])
-        right = np.array([])
-        return np.array(left.get_array_of_samples()), np.array(right.get_array_of_samples())
+        message_left, message_right = [], []
+        for index in range(len(files)):
+            if index % 2 == 0:
+                message_left.append(self._getMessageFromFile(files[index]))
+            else:
+                message_right.append(self._getMessageFromFile(files[index]))
+
+        return message_left, message_right
+    
+    def _getMessageFromFile(self, file) -> np.ndarray:
+        """ Return message from image file
+
+        Args:
+            file (str): path of image file
+
+        Returns:
+            np.ndarray: message from image file
+        """
+        image = Image.open(file)
+        image = image.resize((512, 384), Image.ANTIALIAS)
+        image.save(f'{file[:-4]}_resized.png')
+        image = Image.open(f'{file[:-4]}_resized.png')
+        arr = np.asarray(image) 
+        arr_r = arr[:, :, 0].flatten()
+        # arr_r = arr_r/np.linalg.norm(arr_r) # normalize
+        arr_g = arr[:, :, 1].flatten()
+        # arr_g = arr_g/np.linalg.norm(arr_g) # normalize
+        arr_b = arr[:, :, 2].flatten()      
+        # arr_b = arr_b/np.linalg.norm(arr_b) #normalize
+        # put line separator every 512 points in each of arrays
+        # arr_r = np.insert(arr_r, range(0,len(arr),512), self.line_separator)
+        # arr_g = np.insert(arr_g, range(0,len(arr),512), self.line_separator)
+        # arr_b = np.insert(arr_b, range(0,len(arr),512), self.line_separator)
+
+        # return np.concatenate(
+        # (np.array(arr_r), self.image_divider,
+        #  np.array(arr_g), self.image_divider,
+        #  np.array(arr_b), self.image_divider),
+
+        return np.concatenate(
+        (np.array(arr_r),
+         np.array(arr_g),
+         np.array(arr_b)))
+
 
         

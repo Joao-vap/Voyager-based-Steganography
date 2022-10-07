@@ -25,7 +25,28 @@ class AudioMessage(messenger, ABC):
         """ Return string representation of message
         """
         pass
-    
+
+    def _getMessageFromFiles(self, files) -> list:
+        """
+        Return message from mp3 files,
+        divide calls beetween left and right
+
+        Args:
+            files (list): paths of mp3 files
+        
+        Returns:
+            message left and right: list of messages
+        """
+        # get all messages from files
+        message_left, message_rigth = [], []
+        
+        for file in files:
+            message_l, message_r = self._getMessageFromFile(file)
+            message_left.append(message_l)
+            message_rigth.append(message_r)
+
+        return message_left, message_rigth
+
     def _getMessageFromFile(self, file) -> np.ndarray:
         """ Return message from mp3 file
 
@@ -38,4 +59,6 @@ class AudioMessage(messenger, ABC):
         # get message from mp3 file
         mp3 = pd.AudioSegment.from_mp3(f"{file}")
         left, right = mp3.split_to_mono()[0], mp3.split_to_mono()[1]
-        return np.array(left.get_array_of_samples()), np.array(right.get_array_of_samples())
+        left = np.array(left.get_array_of_samples())
+        right = np.array(right.get_array_of_samples())
+        return left, right

@@ -1,6 +1,7 @@
 import numpy as np
+from src.SBS.encoding.send import Send
 from src.SBS.imagemessage import ImageMessage as imagemessage
-from src.SBS.key import Key as key
+from src.SBS.key import Key as k
 
 class Sender(imagemessage):
     
@@ -21,6 +22,23 @@ class Sender(imagemessage):
             message.message_left = np.concatenate([self.message_left, other.message_left])
             message.message_right = np.concatenate([self.message_right, other.message_right])
             return message
+
+        if isinstance(other, k):
+            if len(other) > len(self):
+                message = Send()
+                key = other.message_left
+                message.message_left = imagemessage.sum_difsize_lists(self.message_left, key)
+                key = other.message_right
+                message.message_right = imagemessage.sum_difsize_lists(self.message_right, key)
+                return message
+            elif len(other) < len(self):
+                #repeat the key until it is the same length as the message
+                message = Send()
+                key = np.concatenate((np.tile(other.message_left, int(len(self)/len(other))), other.message_left[:len(self)%len(other)]), axis=None)
+                message.message_left = imagemessage.sum_difsize_lists(self.message_left, key)
+                key = np.concatenate((np.tile(other.message_right, int(len(self)/len(other))), other.message_right[:len(self)%len(other)]), axis=None)
+                message.message_right = imagemessage.sum_difsize_lists(self.message_right, key)
+                return message    
     
     def __repr__(self) -> str:
         """ Return string representation of message
@@ -30,29 +48,4 @@ class Sender(imagemessage):
         """
         return (self.message_left.__repr__(), self.message_right.__repr__())
 
-    def __sub__(self, other):
-        """ Subtract two messages
-
-        Args:
-            other (ImageMessage): message to be subtracted
-        """
-        if isinstance(other, key):
-            # if key is shorter than message
-            if len(other) < len(self):
-                # repeats key until it is the same length as message
-                
-                key = np.concatenate((np.tile(other.message_left, int(len(self)/len(other))), other.message_left[:len(self)%len(other)]), axis=None)
-                self.message_left = self.message_left - key
-                key = np.concatenate((np.tile(other.message_right, int(len(self)/len(other))), other.message_right[:len(self)%len(other)]), axis=None)
-                self.message_right = self.message_right - key
-                return key
-            else:
-                # we use a fraction of the key
-                key = other.message_left[:len(self)]
-                self.message_left = self.message_left - key
-                key = other.message_right[:len(self)]
-                self.message_right = self.message_right - key
-                return key
-        else:
-            raise TypeError("unsupported operand type(s) for -: 'Sender' and '{}'".format(type(other)))
-        
+            

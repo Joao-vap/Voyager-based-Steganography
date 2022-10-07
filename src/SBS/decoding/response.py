@@ -4,7 +4,12 @@ from src.SBS.audiomessage import AudioMessage as audiomessage
 
 class Response(audiomessage):
 
-    def __init__(self, files_path=None, images_path=None):
+    """
+    Class to represent a Response message
+    which is a message subtrated a key.
+    """
+
+    def __init__(self, files_path=None):
         super().__init__(files_path)
     
     @property
@@ -119,4 +124,6 @@ class Response(audiomessage):
         """
         for i in range(len(self.matrixes_right)):
             self.save_from_rightChannel(i, filename + str(i) + '.png')
+
+    
     
