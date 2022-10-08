@@ -21,20 +21,21 @@ from src.SBS.encoding.send import Send
 
 ####################### make the inverse process #############################
 
-key = Key(files_path=['./audio/HeartlessBastards.mp3'])
-resp = Send(images_path=['./image/Template-Needs.png', './image/LogoName.jpg'])
+resp = Send()
+# key = Key(files_path=['./audio/HeartlessBastards.mp3'])
+# resp = Send(images_path=['./image/Template-Needs.png', './image/LogoName.jpg'])
 
-# print(resp.message_left.shape)
-# print(resp.message_right.shape)
-# print(key.message_left.shape)
-# print(key.message_right.shape)
+# # print(resp.message_left.shape)
+# # print(resp.message_right.shape)
+# # print(key.message_left.shape)
+# # print(key.message_right.shape)
 
-# toSend = resp + key
+# # toSend = resp + key
 
-# toSend.add_sep_and_div()
+# # toSend.add_sep_and_div()
 
-mp3_path = resp.create_mp3_file(path='./audio/message_toSend.mp3', sample_width=2)
-mp3_path = key.create_mp3_file(path='./audio/key_toSend.mp3', sample_width=2)
+# mp3_path = resp.create_mp3_file(path='./audio/message_toSend.mp3', sample_width=2)
+# mp3_path = key.create_mp3_file(path='./audio/key_toSend.mp3', sample_width=2)
 
 #received = Received(files_path=['./audio/audio_toSend.mp3'])
 

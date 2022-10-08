@@ -66,6 +66,8 @@ class Send(imagemessage):
                 key = np.concatenate((np.tile(other.message_right, int(len(self)/len(other))), other.message_right[:len(self)%len(other)]), axis=None)
                 message.message_right = imagemessage.sum_difsize_lists(self.message_right, key)
                 return message   
+        
+        return Send()
 
     def __repr__(self) -> str:
         """ Return string representation of message

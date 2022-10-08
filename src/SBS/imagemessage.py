@@ -1,4 +1,5 @@
 import os
+from matplotlib.pyplot import sca
 import numpy as np
 import pydub as pd
 from src.SBS.messenger import Messenger as messenger
@@ -16,7 +17,7 @@ class ImageMessage(messenger, ABC):
 
     def _make_divider(self):
         """ Return divider for message,
-        this is inspired in voyager diveder and
+        this is inspired in voyager divider and
         consists in an zig-zag pattern
         """
         divider = np.array([])
@@ -25,6 +26,7 @@ class ImageMessage(messenger, ABC):
                 divider = np.append(divider, 3)
             else:
                 divider = np.append(divider, -3)
+        print(divider)
         return divider
     
     def make_separator(self):
@@ -34,6 +36,7 @@ class ImageMessage(messenger, ABC):
         separator = np.array([])
         separator = np.append(separator, 2)
         separator = np.append(separator, -2)
+        print(separator)
         return separator
         
     @abstractmethod    
@@ -68,7 +71,7 @@ class ImageMessage(messenger, ABC):
             else:
                 message_right.append(self._getMessageFromFile(files[index]))
 
-        return message_left, message_right
+        return [message_left, message_right]
     
     def _getMessageFromFile(self, file) -> np.ndarray:
         """ Return message from image file
@@ -83,27 +86,25 @@ class ImageMessage(messenger, ABC):
         image = image.resize((512, 384), Image.ANTIALIAS)
         image.save(f'{file[:-4]}_resized.png')
         image = Image.open(f'{file[:-4]}_resized.png')
-        arr = np.asarray(image) 
+        arr = np.array(image) 
+        # Flatten and normalize (-1, 1)
+        scale = np.frompyfunc(lambda x, xmax, xmin: ((x-xmin)*2/(xmax-xmin))-1, 3, 1)
         arr_r = arr[:, :, 0].flatten()
-        # arr_r = arr_r/np.linalg.norm(arr_r) # normalize
+        arr_r = scale(arr_r, 255, 0)
         arr_g = arr[:, :, 1].flatten()
-        # arr_g = arr_g/np.linalg.norm(arr_g) # normalize
+        arr_g = scale(arr_g, 255, 0)
         arr_b = arr[:, :, 2].flatten()      
-        # arr_b = arr_b/np.linalg.norm(arr_b) #normalize
+        arr_b = scale(arr_b, 255, 0)
         # put line separator every 512 points in each of arrays
-        # arr_r = np.insert(arr_r, range(0,len(arr),512), self.line_separator)
-        # arr_g = np.insert(arr_g, range(0,len(arr),512), self.line_separator)
-        # arr_b = np.insert(arr_b, range(0,len(arr),512), self.line_separator)
-
-        # return np.concatenate(
-        # (np.array(arr_r), self.image_divider,
-        #  np.array(arr_g), self.image_divider,
-        #  np.array(arr_b), self.image_divider),
+        arr_r = np.insert(arr_r, range(0,len(arr),512), self.line_separator)
+        arr_g = np.insert(arr_g, range(0,len(arr),512), self.line_separator)
+        arr_b = np.insert(arr_b, range(0,len(arr),512), self.line_separator)
 
         return np.concatenate(
-        (np.array(arr_r),
-         np.array(arr_g),
-         np.array(arr_b)))
+        (np.array(arr_r), self.image_divider,
+         np.array(arr_g), self.image_divider,
+         np.array(arr_b), self.image_divider))
+
 
 
         

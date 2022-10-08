@@ -45,9 +45,9 @@ class AudioMessage(messenger, ABC):
             message_left.append(message_l)
             message_rigth.append(message_r)
 
-        return message_left, message_rigth
+        return [message_left, message_rigth]
 
-    def _getMessageFromFile(self, file) -> np.ndarray:
+    def _getMessageFromFile(self, file) -> list:
         """ Return message from mp3 file
 
         Args:
@@ -61,4 +61,4 @@ class AudioMessage(messenger, ABC):
         left, right = mp3.split_to_mono()[0], mp3.split_to_mono()[1]
         left = np.array(left.get_array_of_samples())
         right = np.array(right.get_array_of_samples())
-        return left, right
+        return [left, right]
