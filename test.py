@@ -2,6 +2,7 @@ from audioop import tostereo
 from src.SBS.decoding.received import Received
 from src.SBS.key import Key
 from src.SBS.encoding.send import Send
+import os
 
 # # receive messages
 # mymessage1 = Received(files_path=['./audio/audio_1.mp3', './audio/audio_0.mp3'])
@@ -21,7 +22,7 @@ from src.SBS.encoding.send import Send
 
 ####################### make the inverse process #############################
 
-resp = Send()
+resp = Send(images_path=['./image/balsa3.jpg','./image/balsa3.jpg'])
 # key = Key(files_path=['./audio/HeartlessBastards.mp3'])
 # resp = Send(images_path=['./image/Template-Needs.png', './image/LogoName.jpg'])
 
@@ -34,8 +35,8 @@ resp = Send()
 
 # # toSend.add_sep_and_div()
 
-# mp3_path = resp.create_mp3_file(path='./audio/message_toSend.mp3', sample_width=2)
-# mp3_path = key.create_mp3_file(path='./audio/key_toSend.mp3', sample_width=2)
+mp3_path = resp.create_mp3_file(path='./audio/message_toSend.mp3', sample_width=1)
+# mp3_path = key.create_mp3_file(path='./audio/key_toSend.mp3', sample_width=1)
 
 #received = Received(files_path=['./audio/audio_toSend.mp3'])
 
@@ -43,7 +44,7 @@ resp = Send()
 
 # mp3_path = message.create_mp3_file(path='./audio/message_received.mp3')
 
-# print(resp.message_left.shape)
-# print(resp.message_right.shape)
+print(resp.message_left)
+print(resp.message_right)
 # print(key.message_left.shape)
 # print(key.message_right.shape)

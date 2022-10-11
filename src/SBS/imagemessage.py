@@ -1,4 +1,5 @@
 import os
+from turtle import color
 from matplotlib.pyplot import sca
 import numpy as np
 import pydub as pd
@@ -11,9 +12,9 @@ class ImageMessage(messenger, ABC):
     """ Abstract methods """
 
     def __init__(self, images_path=None):
-        super().__init__(images_path)
         self.image_divider = self._make_divider()
         self.line_separator = self.make_separator()
+        super().__init__(images_path)
 
     def _make_divider(self):
         """ Return divider for message,
@@ -21,11 +22,12 @@ class ImageMessage(messenger, ABC):
         consists in an zig-zag pattern
         """
         divider = np.array([])
-        for i in range(0, 512):
+        for i in range(0, 10000):
             if i % 2 == 0:
-                divider = np.append(divider, 3)
+                divider = np.append(divider, 200)
             else:
-                divider = np.append(divider, -3)
+                divider = np.append(divider, -200)
+
         print(divider)
         return divider
     
@@ -34,9 +36,8 @@ class ImageMessage(messenger, ABC):
         a peak and a fall
         """
         separator = np.array([])
-        separator = np.append(separator, 2)
-        separator = np.append(separator, -2)
-        print(separator)
+        separator = np.append(separator, 100)
+        separator = np.append(separator, -100)
         return separator
         
     @abstractmethod    
@@ -88,7 +89,7 @@ class ImageMessage(messenger, ABC):
         image = Image.open(f'{file[:-4]}_resized.png')
         arr = np.array(image) 
         # Flatten and normalize (-1, 1)
-        scale = np.frompyfunc(lambda x, xmax, xmin: ((x-xmin)*2/(xmax-xmin))-1, 3, 1)
+        scale = np.frompyfunc(lambda x, xmax, xmin: ((x-xmin)*100/(xmax-xmin))-50, 3, 1)
         arr_r = arr[:, :, 0].flatten()
         arr_r = scale(arr_r, 255, 0)
         arr_g = arr[:, :, 1].flatten()
@@ -96,15 +97,14 @@ class ImageMessage(messenger, ABC):
         arr_b = arr[:, :, 2].flatten()      
         arr_b = scale(arr_b, 255, 0)
         # put line separator every 512 points in each of arrays
-        arr_r = np.insert(arr_r, range(0,len(arr),512), self.line_separator)
-        arr_g = np.insert(arr_g, range(0,len(arr),512), self.line_separator)
-        arr_b = np.insert(arr_b, range(0,len(arr),512), self.line_separator)
-
-        return np.concatenate(
-        (np.array(arr_r), self.image_divider,
-         np.array(arr_g), self.image_divider,
-         np.array(arr_b), self.image_divider))
-
-
-
+        for i in range(0, 384):
+            ind = (i+1)*512+(i)*2
+            arr_r = np.concatenate([arr_r[0:ind],self.line_separator,arr_r[ind:(384*512)+i*2]])
+            arr_g = np.concatenate([arr_g[0:ind],self.line_separator,arr_g[ind:(384*512)+i*2]])
+            arr_b = np.concatenate([arr_b[0:ind],self.line_separator,arr_b[ind:(384*512)+i*2]])
         
+        return np.concatenate([
+         np.array(arr_r), self.image_divider,
+         np.array(arr_g), self.image_divider,
+         np.array(arr_b), self.image_divider
+         ])     

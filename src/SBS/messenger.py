@@ -76,7 +76,7 @@ class Messenger(ABC):
             list[np.ndarray]: message from files, left and right channel
         """
         # check if is string with path to directory
-        # or list of mp3 files
+        # or list of files
         if isinstance(files_path, str):
             message_left, message_rigth = self._getMessageFromDirectory(files_path)
         elif isinstance(files_path, list):
@@ -95,13 +95,13 @@ class Messenger(ABC):
             list[np.ndarray]: message from files
         """
         # get all mp3 files in directory
-        files = self._getMp3FilesInDirectory(files_path)
+        files = self._getFilesinDirectory(files_path)
         # get all messages from mp3 files
         message_left, message_rigth = self._getMessageFromFiles(files)
         # concatenate all messages
         return message_left, message_rigth
     
-    def _getMp3FilesInDirectory(self, files_path) -> list:
+    def _getFilesinDirectory(self, files_path) -> list:
         """ Return files in directory
 
         Args:
@@ -113,7 +113,7 @@ class Messenger(ABC):
         # get all mp3 files in directory
         files = []
         for file in os.listdir(files_path):
-            # add paths of m3 files to list
+            # add paths of files to list
             files.append(files_path + '/' + file)
         return files
     
@@ -143,7 +143,10 @@ class Messenger(ABC):
             np.ndarray: concatenated message
         """
         # concatenate all messages
-        return np.concatenate(messages)
+        if len(messages) == 0:
+            return np.array([])
+        else:
+            return np.concatenate(messages)
     
     def sum_difsize_lists(list1, list2):
         """ Return sum of two lists with different size
@@ -180,7 +183,7 @@ class Messenger(ABC):
             sr (int): sampling rate
         """
         x = np.array([self.message_left,self.message_right])
+        print(x)
         channels = 2 if (x.ndim == 2 and x.shape[0] == 2) else 1
-        y = np.int16(x)
-        song = pd.AudioSegment(y.tobytes(), frame_rate=sr, sample_width=sample_width, channels=channels)
+        song = pd.AudioSegment(np.int16(x), frame_rate=sr, sample_width=sample_width, channels=channels)
         song.export(path, format="mp3", bitrate="320k")
