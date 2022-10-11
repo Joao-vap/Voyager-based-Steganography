@@ -147,7 +147,6 @@ class Messenger(ABC):
         if len(messages) == 0:
             return np.array([])
         else:
-            print(len(np.concatenate(messages)))
             return np.concatenate(messages)
     
     def sum_difsize_lists(list1, list2):
@@ -196,6 +195,6 @@ class Messenger(ABC):
             x = np.concatenate[self.message_left, self.message_right]
             song = pd.AudioSegment(x.astype(np.int32).tobytes(), frame_rate=fr, sample_width=sample_width, channels=channels)
         
-
         # song = pd.AudioSegment(np.int16(x), frame_rate=fr, sample_width=sample_width, channels=channels)
         song.export(path, format="mp3", bitrate="320k")
+        return path
