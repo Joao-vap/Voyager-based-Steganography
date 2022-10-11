@@ -1,4 +1,5 @@
 import os
+from turtle import right
 import numpy as np
 import pydub as pd
 from abc import ABC, abstractmethod
@@ -146,6 +147,7 @@ class Messenger(ABC):
         if len(messages) == 0:
             return np.array([])
         else:
+            print(len(np.concatenate(messages)))
             return np.concatenate(messages)
     
     def sum_difsize_lists(list1, list2):
@@ -175,15 +177,25 @@ class Messenger(ABC):
             sum_list.append(listmax[i])
         return sum_list
 
-    def create_mp3_file(self, path, sample_width=1, sr=44100) -> str:
+    def create_mp3_file(self, path, sample_width=1, fr=44100, channels = 2) -> str:
         """ Create mp3 file from message
 
         Args:
             path (str): path to save mp3 file
             sr (int): sampling rate
         """
-        x = np.array([self.message_left,self.message_right])
-        print(x)
-        channels = 2 if (x.ndim == 2 and x.shape[0] == 2) else 1
-        song = pd.AudioSegment(np.int16(x), frame_rate=sr, sample_width=sample_width, channels=channels)
+        if len(self.message_left) > len(self.message_right):
+            diff = len(self.message_left) - len(self.message_right)
+            self.message_right = np.concatenate([self.message_right, np.zeros(diff)])
+
+        if channels == 2:
+            left = pd.AudioSegment(self.message_left.astype(np.int32).tobytes(), frame_rate=fr, sample_width=sample_width, channels = 1)
+            right = pd.AudioSegment(self.message_right.astype(np.int32).tobytes(), frame_rate=fr, sample_width=sample_width, channels = 1)
+            song = pd.AudioSegment.from_mono_audiosegments(left, right)
+        else:
+            x = np.concatenate[self.message_left, self.message_right]
+            song = pd.AudioSegment(x.astype(np.int32).tobytes(), frame_rate=fr, sample_width=sample_width, channels=channels)
+        
+
+        # song = pd.AudioSegment(np.int16(x), frame_rate=fr, sample_width=sample_width, channels=channels)
         song.export(path, format="mp3", bitrate="320k")

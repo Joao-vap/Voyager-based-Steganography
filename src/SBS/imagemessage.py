@@ -22,13 +22,11 @@ class ImageMessage(messenger, ABC):
         consists in an zig-zag pattern
         """
         divider = np.array([])
-        for i in range(0, 10000):
+        for i in range(0, 256):
             if i % 2 == 0:
-                divider = np.append(divider, 200)
+                divider = np.append(divider, [100, 0])
             else:
-                divider = np.append(divider, -200)
-
-        print(divider)
+                divider = np.append(divider, [-100, 0])
         return divider
     
     def make_separator(self):
@@ -36,8 +34,8 @@ class ImageMessage(messenger, ABC):
         a peak and a fall
         """
         separator = np.array([])
-        separator = np.append(separator, 100)
-        separator = np.append(separator, -100)
+        separator = np.append(separator, 75)
+        separator = np.append(separator, -75)
         return separator
         
     @abstractmethod    
@@ -102,9 +100,9 @@ class ImageMessage(messenger, ABC):
             arr_r = np.concatenate([arr_r[0:ind],self.line_separator,arr_r[ind:(384*512)+i*2]])
             arr_g = np.concatenate([arr_g[0:ind],self.line_separator,arr_g[ind:(384*512)+i*2]])
             arr_b = np.concatenate([arr_b[0:ind],self.line_separator,arr_b[ind:(384*512)+i*2]])
-        
+
         return np.concatenate([
-         np.array(arr_r), self.image_divider,
-         np.array(arr_g), self.image_divider,
-         np.array(arr_b), self.image_divider
+         self.image_divider, np.array(arr_r),
+         self.image_divider, np.array(arr_g),
+         self.image_divider, np.array(arr_b)
          ])     

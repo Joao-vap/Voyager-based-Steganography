@@ -22,7 +22,7 @@ import os
 
 ####################### make the inverse process #############################
 
-resp = Send(images_path=['./image/balsa3.jpg','./image/balsa3.jpg'])
+resp = Send(images_path=['./image/balsa3.jpg', './image/LogoName.jpg', './image/balsa3.jpg', './image/LogoName.jpg'])
 # key = Key(files_path=['./audio/HeartlessBastards.mp3'])
 # resp = Send(images_path=['./image/Template-Needs.png', './image/LogoName.jpg'])
 
