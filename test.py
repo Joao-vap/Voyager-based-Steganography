@@ -3,13 +3,11 @@ from src.SBS.decoding.response import Response
 from src.SBS.key import Key
 from src.SBS.encoding.send import Send
 import os
-# import numpy as np
-# from matplotlib import pyplot as plt
-# import pydub as pd
+import numpy as np
+from matplotlib import pyplot as plt
+import pydub as pd
 
 # # receive messages
-message = Response(files_path=['./audio/message_toSend.mp3'])
-message.plot_from_leftChannel(1)
 # mymessage2 = Received(files_path='./audio')
 
 # instatiate Key
@@ -38,14 +36,6 @@ message.plot_from_leftChannel(1)
 # # toSend = resp + key
 
 # # toSend.add_sep_and_div()
-# mp3 = pd.AudioSegment.from_mp3('./audio/test.mp3')
-# left, right = mp3.split_to_mono()[0], mp3.split_to_mono()[1]
-# print(len(np.array(left.get_array_of_samples())))
-# left = np.split(np.array(left.get_array_of_samples())[:-336], 384)
-# right = np.split(np.array(right.get_array_of_samples()[:-336]), 384)
-
-# plt.imshow(left, cmap = 'Greys', interpolation='nearest')
-# plt.show()
 # mp3_path = resp.create_mp3_file(path='./audio/message_toSend.mp3', sample_width=1)
 # mp3_path = key.create_mp3_file(path='./audio/key_toSend.mp3', sample_width=1)
 
@@ -59,3 +49,27 @@ message.plot_from_leftChannel(1)
 # print(resp.message_right)
 # print(key.message_left.shape)
 # print(key.message_right.shape)
+
+
+
+
+
+########################################################################
+
+# # codify
+# resp = Send(images_path=['./image/circle.png', './image/circle.png'])
+# mp3_path = resp.create_mp3_file(path='./audio/message_toSend.mp3', sample_width=1)
+
+mp3 = pd.AudioSegment.from_mp3('./audio/message_toSend.mp3')
+left, right = mp3.split_to_mono()[0], mp3.split_to_mono()[1]
+print(len(np.array(left.get_array_of_samples())))
+left = np.split(np.array(left.get_array_of_samples()[:-81]), 386)
+right = np.split(np.array(right.get_array_of_samples()[:-81]), 386)
+
+plt.imshow(left, cmap = 'Greys', interpolation='nearest')
+plt.show()
+
+# # decode
+# message = Response(files_path=['./audio/message_toSend.mp3'])
+# # message.plot_from_leftChannel(1)
+# message.plot_from_leftChannel(0)

@@ -18,10 +18,6 @@ class Response(audiomessage):
         self._matrixes_right = np.array([])
         super().__init__(files_path)
 
-    # @property
-    # def matrixes_left(self):
-    #     return self._matrixes_left
-
     # @matrixes_left.setter
     def set_left_matrix(self):
         # search for max value (divisor of images) at beggining
@@ -35,8 +31,6 @@ class Response(audiomessage):
 
             matrix = np.array([])
 
-            print(times, self.max_dist, self.med_dist, self.n_med, self.n_max, len(self.message_left)-self.max_dist*times, 'beggin')
-
             # searh for end of zig-zag pattern in image divider
             ind_max = np.argmax(self.message_left[:1500])
             # search for first point of image line (end of zig zag)
@@ -44,6 +38,8 @@ class Response(audiomessage):
             
             while abs(np.amax(self.message_left[i:i+10]) % self.n_max) < 0.1:
                 i += 10
+
+            print(i)
 
             # look for n_med
             if self.n_med == 0:
@@ -57,9 +53,6 @@ class Response(audiomessage):
             for _ in range(0, 384):
                 matrix = np.append(matrix, self.message_left[i:i+self.med_dist])
                 i = i + self.med_dist
-
-            print(self._matrixes_left.shape)
-            print(matrix.shape)
                 
             matrix = matrix.reshape(384, self.med_dist)
 
@@ -67,19 +60,13 @@ class Response(audiomessage):
 
             self._matrixes_left = np.append(self._matrixes_left, matrix)
 
-            print(times, self.max_dist, self.med_dist, self.n_med, self.n_max, len(self.message_left)-self.max_dist*times)
-            print()
-
             times += 1
         
+        print(self.med_dist)
         self._matrixes_left = self._matrixes_left.reshape((times, 384, self.med_dist))
 
         return True
     
-    # @property
-    # def matrixes_right(self):
-    #     return self._matrixes_right
-
     # @matrixes_right.setter
     def set_rigth_matrix(self):
         # search for max value (divisor of images) at beggining
@@ -92,8 +79,6 @@ class Response(audiomessage):
         while len(self.message_right)-self.max_dist*times > self.max_dist:
 
             matrix = np.array([])
-
-            print(times, self.max_dist, self.med_dist, self.n_med, self.n_max, len(self.message_right)-self.max_dist*times, 'beggin')
 
             # searh for end of zig-zag pattern in image divider
             ind_max = np.argmax(self.message_right[:1500])
@@ -115,21 +100,12 @@ class Response(audiomessage):
             for _ in range(0, 384):
                 matrix = np.append(matrix, self.message_right[i:i+self.med_dist])
                 i = i + self.med_dist
-
-            print(self._matrixes_right.shape)
-            print(matrix.shape)
                 
             matrix = matrix.reshape(384, self.med_dist)
-
-            print(matrix)
-            print(self._matrixes_right)
 
             self.max_dist = 384*self.med_dist
 
             self._matrixes_right = np.append(self._matrixes_right, matrix)
-
-            print(times, self.max_dist, self.med_dist, self.n_med, self.n_max, len(self.message_right)-self.max_dist*times)
-            print()
 
             times += 1
 
@@ -182,7 +158,7 @@ class Response(audiomessage):
         if not self.setted:
             self.setted = self.setmatrixes()
 
-        plt.imshow(self._matrixes_left[index], cmap='gray', interpolation='nearest')
+        plt.imshow(self._matrixes_left[index], cmap='gray', interpolation='nearest', aspect='auto')
         plt.show()
 
     def plot_from_rightChannel(self, index):
@@ -194,59 +170,59 @@ class Response(audiomessage):
         if not self.setted:
             self.setted = self.setmatrixes()
 
-        plt.imshow(self._matrixes_right[index], cmap='gray', interpolation='nearest')
+        plt.imshow(self._matrixes_right[index], cmap='gray', interpolation='nearest',aspect='auto')
         plt.show()
     
-    def save_from_leftChannel(self, index, filename):
+    def save_from_leftChannel(self, index, path):
         """ Save a matrix from the left channel
 
         Args:
             index (int): index of matrix to save
-            filename (str): filename to save to
+            path (str): path to save to
         """
         if not self.setted:
             self.setted = self.setmatrixes()
          
         plt.imshow(self._matrixes_left[index], cmap='gray', interpolation='nearest', aspect='auto')
-        plt.savefig(filename)
+        plt.savefig(path + str(index) + '.png')
     
-    def save_from_rightChannel(self, index, filename):
+    def save_from_rightChannel(self, index, path):
         """ Save a matrix from the right channel
 
         Args:
             index (int): index of matrix to save
-            filename (str): filename to save to
+            path (str): path to save to
         """
         if not self.setted:
             self.setted = self.setmatrixes()
         
         plt.imshow(self._matrixes_right[index], cmap='gray', interpolation='nearest', aspect='auto')
-        plt.savefig(filename)
+        plt.savefig(path + str(index) + '.png')
     
-    def save_all_from_leftChannel(self, filename):
+    def save_all_from_leftChannel(self, path):
         """ Save all matrices from the left channel
 
         Args:
-            filename (str): filename to save to
+            path (str): path to save to
         """
         if not self.setted:
             self.setted = self.setmatrixes()
          
         for i in range(len(self._matrixes_left)):
-            self.save_from_leftChannel(i, filename + str(i) + '.png')
+            self.save_from_leftChannel(i, path)
 
-    def save_all_from_rightChannel(self, filename):
+    def save_all_from_rightChannel(self, path):
         """ Save all matrices from the right channel
 
         Args:
-            filename (str): filename to save to
+            path (str): path to save to
         """
         if not self.setted:
             self.setmatrixes()
             self.setted = True
          
         for i in range(len(self._matrixes_right)):
-            self.save_from_rightChannel(i, filename + str(i) + '.png')
+            self.save_from_rightChannel(i, path)
 
     
     
