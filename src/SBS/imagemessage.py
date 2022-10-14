@@ -22,11 +22,11 @@ class ImageMessage(messenger, ABC):
         consists in an zig-zag pattern
         """
         divider = np.array([])
-        for i in range(0, 256):
+        for i in range(0, 512):
             if i % 2 == 0:
-                divider = np.append(divider, [100, 0])
+                divider = np.append(divider, 100)
             else:
-                divider = np.append(divider, [-100, 0])
+                divider = np.append(divider, -100)
         return divider
     
     def make_separator(self):
