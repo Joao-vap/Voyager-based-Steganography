@@ -1,6 +1,6 @@
 from matplotlib import pyplot as plt
 import numpy as np
-from src.SBS.audiomessage import AudioMessage as audiomessage
+from src.VBS.audiomessage import AudioMessage as audiomessage
 from cv2 import imread, imwrite, IMREAD_GRAYSCALE
 
 class Response(audiomessage):
@@ -8,6 +8,36 @@ class Response(audiomessage):
     """
     Class to represent a Response message
     which is a message subtrated a key.
+
+    Attributes:
+        message_left (np.array): left channel of message
+        message_right (np.array): right channel of message
+        maxMagnitude (int): max value of message
+        medMagnitude (int): median value of message
+        imageLength (int): length of image
+        lineLength (int): length of line
+        _partialimagees_left (np.array): left channel of partialimagees
+        _partialimagees_right (np.array): right channel of partialimagees
+
+    Methods:
+        set_left_partialimage (bool): set partialimagees left channel
+        set_rigth_partialimage (bool): set partialimagees right channel
+        setpartialimagees (bool): set partialimagees
+        __len__ (int): return length of message
+        __getitem__ (np.array): return partialimage
+        __setitem__ (bool): set partialimage
+        __delitem__ (bool): delete partialimage
+        __iter__ (np.array): return iterator of partialimagees
+        __add__ (Response): add two messages
+        __repr__ (str): return string representation of message
+        plot_from_leftChannel (None): plot a partialimage from left channel
+        plot_from_rigthChannel (None): plot a partialimage from right channel
+        save_from_leftChannel (None): save a partialimage from left channel
+        save_from_rigthChannel (None): save a partialimage from right channel
+        save_all_from_leftChannel (None): save all partialimagees from left channel
+        save_all_from_rigthChannel (None): save all partialimagees from right channel
+        create_colored_image (None): Creates colored image with 3 paths RGB
+
     """
 
     def __init__(self, files_path=None):
@@ -18,7 +48,14 @@ class Response(audiomessage):
         self._partialimagees_right = np.array([])
         super().__init__(files_path)
 
-    def set_left_partialimage(self):
+    def set_left_partialimage(self) -> bool:
+
+        '''
+        Method to set partialimagees for left channel
+
+        Returns:
+            bool: True if partialimagees are setted
+        '''
 
         # search for max value (divisor of images) at beggining
         if self.maxMagnitude == 0:
@@ -65,7 +102,14 @@ class Response(audiomessage):
 
         return True
     
-    def set_rigth_partialimage(self):
+    def set_rigth_partialimage(self) -> bool:
+
+        '''
+        Method to set partialimagees for right channel
+
+        Returns:
+            bool: True if partialimagees are setted
+        '''
 
         # search for max value (divisor of images) at beggining
         if self.maxMagnitude == 0:
@@ -112,12 +156,19 @@ class Response(audiomessage):
 
         return True
 
-    def setpartialimagees(self):
+    def setpartialimagees(self) -> bool:
+
+        '''
+        Method to set partialimagees for both channels
+
+        Returns:
+            bool: True if partialimagees are setted
+        '''
         l = self.set_left_partialimage()
         r = self.set_rigth_partialimage()
         return r and l
 
-    def __len__(self):
+    def __len__(self) -> int:
         """ Return the length of the message
 
         Returns:
@@ -148,7 +199,7 @@ class Response(audiomessage):
         """
         return (self.message_left.__repr__(), self.message_right.__repr__())
     
-    def plot_from_leftChannel(self, index):
+    def plot_from_leftChannel(self, index) -> None:
         """ Plot a partialimage from the left channel
 
         Args:
@@ -160,7 +211,7 @@ class Response(audiomessage):
         plt.imshow(self._partialimagees_left[index], cmap='gray', interpolation='bilinear', aspect='auto')
         plt.show()
 
-    def plot_from_rightChannel(self, index):
+    def plot_from_rightChannel(self, index) -> None:
         """ Plot a partialimage from the right channel
 
         Args:
@@ -173,7 +224,7 @@ class Response(audiomessage):
         plt.imshow(self._partialimagees_right[index], cmap='gray', interpolation='bilinear', aspect='auto')
         plt.show()
     
-    def save_from_leftChannel(self, index, path):
+    def save_from_leftChannel(self, index, path) -> None:
         """ Save a partialimage from the left channel
 
         Args:
@@ -186,7 +237,7 @@ class Response(audiomessage):
         plt.imshow(self._partialimagees_left[index], cmap='gray', interpolation='bilinear', aspect='auto')
         plt.savefig(path + str(index) + '.png')
     
-    def save_from_rightChannel(self, index, path):
+    def save_from_rightChannel(self, index, path) -> None:
         """ Save a partialimage from the right channel
 
         Args:
@@ -199,7 +250,7 @@ class Response(audiomessage):
         plt.imshow(self._partialimagees_right[index], cmap='gray', interpolation='bilinear', aspect='auto')
         plt.savefig(path + str(index) + '.png')
     
-    def save_all_from_leftChannel(self, path):
+    def save_all_from_leftChannel(self, path) -> None:
         """ Save all matrices from the left channel
 
         Args:
@@ -211,7 +262,7 @@ class Response(audiomessage):
         for i in range(len(self._partialimagees_left)):
             self.save_from_leftChannel(i, path)
 
-    def save_all_from_rightChannel(self, path):
+    def save_all_from_rightChannel(self, path) -> None:
         """ Save all matrices from the right channel
 
         Args:
@@ -224,7 +275,7 @@ class Response(audiomessage):
         for i in range(len(self._partialimagees_right)):
             self.save_from_rightChannel(i, path)
 
-    def create_colored_image(path1, path2, path3, final_path):
+    def create_colored_image(path1, path2, path3, final_path) -> None:
         """ Create a colored image from three grayscale images
 
         Args:

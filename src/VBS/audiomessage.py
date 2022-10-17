@@ -1,11 +1,24 @@
 import numpy as np
 import pydub as pd
 from abc import ABC, abstractmethod
-from src.SBS.messenger import Messenger as messenger
+from src.VBS.messenger import Messenger as messenger
 
 class AudioMessage(messenger, ABC):
 
-    """ Abstract methods """
+    """
+    Base class for audio message
+
+    Args:
+        messenger (ABC): abstract class for message
+
+    Properties:
+        message_left (np.ndarray): message from left channel
+        message_right (np.ndarray): message from right channel
+
+    Methods:
+        _getMessageFromFiles (list): return message from mp3 files
+        _getMessageFromFile (np.ndarray): return message from mp3 file
+    """
 
     def __init__(self, files_path=None):
         super().__init__(files_path)

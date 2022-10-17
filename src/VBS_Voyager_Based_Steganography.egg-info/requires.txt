@@ -1,6 +1,7 @@
 numpy
 pydub
 matplotlib
+cv2
 
 [:python_version == "3.8"]
 importlib-metadata

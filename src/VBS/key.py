@@ -1,6 +1,6 @@
 import numpy as np
 import pydub as pd
-from src.SBS.audiomessage import AudioMessage as audiomessage
+from src.VBS.audiomessage import AudioMessage as audiomessage
 
 class Key(audiomessage):
 

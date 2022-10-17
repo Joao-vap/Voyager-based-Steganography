@@ -1,7 +1,7 @@
 from audioop import tostereo
-from src.SBS.decoding.response import Response
-from src.SBS.key import Key
-from src.SBS.encoding.send import Send
+from src.VBS.decoding.response import Response
+from src.VBS.key import Key
+from src.VBS.encoding.send import Send
 import os
 import numpy as np
 from matplotlib import pyplot as plt
@@ -57,8 +57,8 @@ import pydub as pd
 ########################################################################
 
 # # codify
-# resp = Send(images_path=['./image/1.png.jpg', './image/2.png.jpg', './image/3.png.jpg', './image/4.png.jpg', './image/5.png.jpg', './image/6.png.jpeg', './image/7.png.jpg', './image/8.png.jpg'])
-# mp3_path = resp.create_mp3_file(path='./audio/message_toSend.mp3', sample_width=1)
+resp = Send(images_path=['./image/1.png.jpg', './image/2.png.jpg', './image/3.png.jpg', './image/4.png.jpg', './image/5.png.jpg', './image/6.png.jpeg', './image/7.png.jpg', './image/8.png.jpg'])
+mp3_path = resp.create_mp3_file(path='./audio/message_toSend.mp3', sample_width=1)
 
 # mp3 = pd.AudioSegment.from_mp3('./audio/message_toSend.mp3')
 # left, right = mp3.split_to_mono()[0], mp3.split_to_mono()[1]

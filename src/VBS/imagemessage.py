@@ -1,19 +1,36 @@
 import numpy as np
 import pydub as pd
-from src.SBS.messenger import Messenger as messenger
+from src.VBS.messenger import Messenger as messenger
 from abc import ABC, abstractmethod
 from PIL import Image
 
 class ImageMessage(messenger, ABC):
 
-    """ Abstract methods """
+    """ Base class for image message
+    
+    Args:
+        messenger (ABC): abstract class for message
+
+    Properties:
+        image_divider (np.ndarray): divider for message
+        line_separator (np.ndarray): separator for message
+        message_left (np.ndarray): message from left channel
+        message_right (np.ndarray): message from right channel
+
+    Methods:
+        _make_divider (np.ndarray): return divider for message
+        _make_separator (np.ndarray): return separator for message
+        _getMessageFromFiles (list): return message from image files
+        _getMessageFromFile (np.ndarray): return message from image file
+
+    """
 
     def __init__(self, images_path=None):
         self.image_divider = self._make_divider()
-        self.line_separator = self.make_separator()
+        self.line_separator = self._make_separator()
         super().__init__(images_path)
 
-    def _make_divider(self):
+    def _make_divider(self) -> np.ndarray:
         """ Return divider for message,
         this is inspired in voyager divider and
         consists in an zig-zag pattern
@@ -26,7 +43,7 @@ class ImageMessage(messenger, ABC):
                 divider = np.append(divider, -100)
         return divider
     
-    def make_separator(self):
+    def _make_separator(self) -> np.ndarray:
         """ Return message with line separator that is
         a peak and a fall
         """
@@ -61,16 +78,23 @@ class ImageMessage(messenger, ABC):
             list: messages from image files
         """
         message_left, message_right = [], []
+        qtdLeft, qtdRight = 0, 0
         for index in range(len(files)):
-            if index % 2 == 0:
-                message_left.append(self._getMessageFromFile(files[index]))
+            if qtdLeft <= qtdRight:
+                message_to_add, qtdaux = self._getMessageFromFile(files[index])
+                message_left.append(message_to_add)
+                qtdLeft += qtdaux
             else:
-                message_right.append(self._getMessageFromFile(files[index]))
+                message_to_add, qtdaux = self._getMessageFromFile(files[index])
+                message_right.append(message_to_add)
+                qtdRight += qtdaux
 
         return [message_left, message_right]
     
     def _getMessageFromFile(self, file) -> np.ndarray:
-        """ Return message from image file
+        """ Return message from image file. This method
+        is responsible for convert image to message for 
+        both rgb and grayscale images.
 
         Args:
             file (str): path of image file
@@ -103,7 +127,7 @@ class ImageMessage(messenger, ABC):
             self.image_divider, np.array(arr_r),
             self.image_divider, np.array(arr_g),
             self.image_divider, np.array(arr_b)
-            ])     
+            ]), 3
         else:
             arr = arr.flatten()
             arr = scale(arr, 255, 0)
@@ -111,4 +135,4 @@ class ImageMessage(messenger, ABC):
             for i in range(0, 384):
                 ind = (i+1)*512+(i)*2
                 arr = np.concatenate([arr[0:ind],self.line_separator,arr[ind:(384*512)+i*2]])
-            return np.concatenate([self.image_divider, np.array(arr)])
+            return np.concatenate([self.image_divider, np.array(arr)]), 1

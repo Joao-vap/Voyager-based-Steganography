@@ -1,32 +1,24 @@
-import pydub as pd
 import numpy as np
-from src.SBS.imagemessage import ImageMessage as imagemessage
-from src.SBS.key import Key as k
+from src.VBS.encoding.send import Send
+from src.VBS.imagemessage import ImageMessage as imagemessage
+from src.VBS.key import Key as k
 
-class Send(imagemessage):
-
+class Sender(imagemessage):
+    
     def __init__(self, images_path=None):
         super().__init__(images_path)
-
-    def __len__(self):
-        """ Return the length of the message
-
-        Returns:
-            int: length of message
-        """
-        return self.message_left.shape[0]
-
-    def __add__(self, other) -> 'Send':
+    
+    def __add__(self, other) -> 'Sender':
         """ Add two messages
-
+    
         Args:
-            other (Send): message to be added
-
+            other: message to be added
+    
         Returns:
-            Send: new message
+            Sender: new message
         """
-        if isinstance(other, Send):
-            message = Send()
+        if isinstance(other, Sender):
+            message = Sender()
             message.message_left = np.concatenate([self.message_left, other.message_left])
             message.message_right = np.concatenate([self.message_right, other.message_right])
             return message
@@ -46,15 +38,14 @@ class Send(imagemessage):
                 message.message_left = imagemessage.sum_difsize_lists(self.message_left, key)
                 key = np.concatenate((np.tile(other.message_right, int(len(self)/len(other))), other.message_right[:len(self)%len(other)]), axis=None)
                 message.message_right = imagemessage.sum_difsize_lists(self.message_right, key)
-                return message   
-        
-        return Send()
-
+                return message    
+    
     def __repr__(self) -> str:
         """ Return string representation of message
-        
+               
         Returns:
             str: string representation of message
         """
-        return f'{self.message_left.__repr__()} ({len(self.message_left)}),  {self.message_right.__repr__()} ({len(self.message_right)})'
+        return (self.message_left.__repr__(), self.message_right.__repr__())
 
+            

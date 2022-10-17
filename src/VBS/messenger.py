@@ -5,7 +5,36 @@ from abc import ABC, abstractmethod
 
 class Messenger(ABC):
 
-    """ Abstract methods """
+    """
+    Base class for all messengers, audio or image
+    
+    Attributes:
+        message_left (np.ndarray): message from left channel
+        message_right (np.ndarray): message from right channel    
+        
+    Methods:
+        __init__(self, files_path=None)
+            Initialize class
+        __len__(self) -> 'int'
+            Return length of message
+        __getitem__(self, key) -> 'list[int]'
+            Return item at index
+        __iter__(self) -> 'list[np.ndarray]'
+            Return iterator of message
+        __next__(self) -> int
+            Return next item in message
+        _getMessage(self, files_path) -> 'list[np.ndarray]'
+            Return message from files
+        _getMessageFromDirectory(self, files_path) -> 'list[np.ndarray]'
+            Return message from files in directory
+        _getFilesinDirectory(self, files_path) -> list
+            Return files in directory
+        _concatenateMessages(self, messages) -> np.ndarray
+            Return concatenated message
+        create_mp3_file(self) -> string
+            Return path of MP3 file generated
+    
+    """
 
     def __init__(self, files_path=None):
         if files_path is None:
@@ -147,33 +176,6 @@ class Messenger(ABC):
             return np.array([])
         else:
             return np.concatenate(messages)
-    
-    def sum_difsize_lists(list1, list2):
-        """ Return sum of two lists with different size
-        
-        Args:
-            list1 (list): list 1
-            list2 (list): list 2
-        
-        Returns:
-            list: sum of two lists
-        """
-        # get size of list 1
-        size1 = len(list1)
-        # get size of list 2
-        size2 = len(list2)
-        # set maxlist
-        if size1 > size2:
-            listmax = list1
-        else:
-            listmax = list2
-        # get size of bigger list
-        size = min(size1, size2)
-        # get sum of two lists
-        sum_list = [list1[i] + list2[i] for i in range(size)]
-        for i in range(size, len(listmax)):
-            sum_list.append(listmax[i])
-        return sum_list
 
     def create_mp3_file(self, path, sample_width=1, fr=44100, channels = 2) -> str:
         """ Create mp3 file from message

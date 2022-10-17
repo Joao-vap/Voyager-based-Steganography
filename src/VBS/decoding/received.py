@@ -1,7 +1,7 @@
 import numpy as np
-from src.SBS.audiomessage import AudioMessage as audiomessage
-from src.SBS.key import Key as k
-from src.SBS.decoding.response import Response as response
+from src.VBS.audiomessage import AudioMessage as audiomessage
+from src.VBS.key import Key as k
+from src.VBS.decoding.response import Response as response
 
 class Received(audiomessage):
 
