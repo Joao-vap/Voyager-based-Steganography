@@ -1,6 +1,3 @@
-import os
-from turtle import color
-from matplotlib.pyplot import sca
 import numpy as np
 import pydub as pd
 from src.SBS.messenger import Messenger as messenger

@@ -1,7 +1,7 @@
-from turtle import shape
 from matplotlib import pyplot as plt
 import numpy as np
 from src.SBS.audiomessage import AudioMessage as audiomessage
+from cv2 import imread, imwrite, IMREAD_GRAYSCALE
 
 class Response(audiomessage):
 
@@ -12,110 +12,109 @@ class Response(audiomessage):
 
     def __init__(self, files_path=None):
         self.setted = False
-        self.n_max, self.n_med = 0, 0
-        self.max_dist, self.med_dist = 0, 0
-        self._matrixes_left = np.array([])
-        self._matrixes_right = np.array([])
+        self.maxMagnitude, self.medMagnitude = 0, 0
+        self.imageLength, self.lineLength = 0, 0
+        self._partialimagees_left = np.array([])
+        self._partialimagees_right = np.array([])
         super().__init__(files_path)
 
-    # @matrixes_left.setter
-    def set_left_matrix(self):
+    def set_left_partialimage(self):
+
         # search for max value (divisor of images) at beggining
-        if self.n_max == 0:
-            self.n_max = np.amax(self.message_left[:1500])
+        if self.maxMagnitude == 0:
+            self.maxMagnitude = np.amax(self.message_left[:1500])
         
-        # find next max zig zag peaks and repeat append of matrix
+        # find next max zig zag peaks and repeat append of partialimage
         # until end of message
-        times = 0
-        while len(self.message_left)-self.max_dist*times > self.max_dist:
+        ImageNumber = 0
+        i = 0
+        while len(self.message_left)-self.imageLength*ImageNumber >= self.imageLength:
 
-            matrix = np.array([])
+            partialimage = np.array([], dtype='float')
 
-            # searh for end of zig-zag pattern in image divider
-            ind_max = np.argmax(self.message_left[:1500])
             # search for first point of image line (end of zig zag)
-            i = ind_max
+            while abs(np.amax(self.message_left[i:i+10]) - self.maxMagnitude) < 3000:
+                i += 8
+
+            # look for medMagnitude
+            if self.medMagnitude == 0:
+                self.medMagnitude = np.amax(self.message_left[i:i+3000])
             
-            while abs(np.amax(self.message_left[i:i+10]) % self.n_max) < 0.1:
-                i += 10
+            j = np.argmax(self.message_left[i:i+3000]) + i
 
-            print(i)
+            if self.lineLength == 0:
+                self.lineLength = j - i + 8
 
-            # look for n_med
-            if self.n_med == 0:
-                self.n_med = np.amax(self.message_left[i:i+3000])
-                j = np.argmax(self.message_left[i:i+3000])
-
-            if self.med_dist == 0:
-                self.med_dist = j - i
-
-            #put lines in matrix
+            #put lines in partialimage
             for _ in range(0, 384):
-                matrix = np.append(matrix, self.message_left[i:i+self.med_dist])
-                i = i + self.med_dist
+                partialimage = np.append(partialimage, self.message_left[i:i+self.lineLength])
+                i = i + self.lineLength
+
+            scale = np.frompyfunc(lambda x, xmax, xmin: ((x-xmin)*255/(xmax-xmin)), 3, 1)
+            partialimage = np.array([scale(partialimage, np.amax(partialimage), np.min(partialimage))], dtype='float')
                 
-            matrix = matrix.reshape(384, self.med_dist)
+            partialimage = partialimage.reshape(384, self.lineLength)
 
-            self.max_dist = 384*self.med_dist
+            self.imageLength = 384*self.lineLength
 
-            self._matrixes_left = np.append(self._matrixes_left, matrix)
+            self._partialimagees_left = np.append(self._partialimagees_left, partialimage)
 
-            times += 1
-        
-        print(self.med_dist)
-        self._matrixes_left = self._matrixes_left.reshape((times, 384, self.med_dist))
+            ImageNumber += 1
+
+        self._partialimagees_left = self._partialimagees_left.reshape((ImageNumber, 384, self.lineLength))
 
         return True
     
-    # @matrixes_right.setter
-    def set_rigth_matrix(self):
+    def set_rigth_partialimage(self):
+
         # search for max value (divisor of images) at beggining
-        if self.n_max == 0:
-            self.n_max = np.amax(self.message_right[:1500])
+        if self.maxMagnitude == 0:
+            self.maxMagnitude = np.amax(self.message_right[:1500])
         
-        # find next max zig zag peaks and repeat append of matrix
+        # find next max zig zag peaks and repeat append of partialimage
         # until end of message
-        times = 0
-        while len(self.message_right)-self.max_dist*times > self.max_dist:
+        ImageNumber = 0
+        i = 0
+        while len(self.message_right)-self.imageLength*ImageNumber >= self.imageLength:
 
-            matrix = np.array([])
+            partialimage = np.array([], dtype='float')
 
-            # searh for end of zig-zag pattern in image divider
-            ind_max = np.argmax(self.message_right[:1500])
             # search for first point of image line (end of zig zag)
-            i = ind_max
+            while abs(np.amax(self.message_right[i:i+10]) - self.maxMagnitude) < 3000:
+                i += 8
+
+            # look for medMagnitude
+            if self.medMagnitude == 0:
+                self.medMagnitude = np.amax(self.message_right[i:i+3000])
             
-            while abs(np.amax(self.message_right[i:i+10]) % self.n_max) < 0.1:
-                i += 10
+            j = np.argmax(self.message_right[i:i+3000]) + i
 
-            # look for n_med
-            if self.n_med == 0:
-                self.n_med = np.amax(self.message_right[i:i+3000])
-                j = np.argmax(self.message_right[i:i+3000])
+            if self.lineLength == 0:
+                self.lineLength = j - i + 8
 
-            if self.med_dist == 0:
-                self.med_dist = j - i
-
-            #put lines in matrix
+            #put lines in partialimage
             for _ in range(0, 384):
-                matrix = np.append(matrix, self.message_right[i:i+self.med_dist])
-                i = i + self.med_dist
+                partialimage = np.append(partialimage, self.message_right[i:i+self.lineLength])
+                i = i + self.lineLength
+
+            scale = np.frompyfunc(lambda x, xmax, xmin: ((x-xmin)*255/(xmax-xmin)), 3, 1)
+            partialimage = np.array([scale(partialimage, np.amax(partialimage), np.min(partialimage))], dtype='float')
                 
-            matrix = matrix.reshape(384, self.med_dist)
+            partialimage = partialimage.reshape(384, self.lineLength)
 
-            self.max_dist = 384*self.med_dist
+            self.imageLength = 384*self.lineLength
 
-            self._matrixes_right = np.append(self._matrixes_right, matrix)
+            self._partialimagees_right = np.append(self._partialimagees_right, partialimage)
 
-            times += 1
+            ImageNumber += 1
 
-        self._matrixes_right = self._matrixes_right.reshape((times, 384, self.med_dist))
+        self._partialimagees_right = self._partialimagees_right.reshape((ImageNumber, 384, self.lineLength))
 
         return True
 
-    def setmatrixes(self):
-        r = self.set_rigth_matrix()
-        l = self.set_left_matrix()
+    def setpartialimagees(self):
+        l = self.set_left_partialimage()
+        r = self.set_rigth_partialimage()
         return r and l
 
     def __len__(self):
@@ -124,7 +123,7 @@ class Response(audiomessage):
         Returns:
             int: length of message
         """
-        return self._matrixes_left.shape[1]
+        return self._partialimagees_left.shape[1]
 
     def __add__(self, other) -> 'Response':
         """ Add two messages
@@ -150,53 +149,54 @@ class Response(audiomessage):
         return (self.message_left.__repr__(), self.message_right.__repr__())
     
     def plot_from_leftChannel(self, index):
-        """ Plot a matrix from the left channel
+        """ Plot a partialimage from the left channel
 
         Args:
-            index (int): index of matrix to plot
+            index (int): index of partialimage to plot
         """
         if not self.setted:
-            self.setted = self.setmatrixes()
+            self.setted = self.setpartialimagees()
 
-        plt.imshow(self._matrixes_left[index], cmap='gray', interpolation='nearest', aspect='auto')
+        plt.imshow(self._partialimagees_left[index], cmap='gray', interpolation='bilinear', aspect='auto')
         plt.show()
 
     def plot_from_rightChannel(self, index):
-        """ Plot a matrix from the right channel
+        """ Plot a partialimage from the right channel
 
         Args:
-            index (int): index of matrix to plot
+            index (int): index of partialimage to plot
         """
         if not self.setted:
-            self.setted = self.setmatrixes()
+            self.setted = self.setpartialimagees()
 
-        plt.imshow(self._matrixes_right[index], cmap='gray', interpolation='nearest',aspect='auto')
+        # set aspect to 384/2048
+        plt.imshow(self._partialimagees_right[index], cmap='gray', interpolation='bilinear', aspect='auto')
         plt.show()
     
     def save_from_leftChannel(self, index, path):
-        """ Save a matrix from the left channel
+        """ Save a partialimage from the left channel
 
         Args:
-            index (int): index of matrix to save
+            index (int): index of partialimage to save
             path (str): path to save to
         """
         if not self.setted:
-            self.setted = self.setmatrixes()
+            self.setted = self.setpartialimagees()
          
-        plt.imshow(self._matrixes_left[index], cmap='gray', interpolation='nearest', aspect='auto')
+        plt.imshow(self._partialimagees_left[index], cmap='gray', interpolation='bilinear', aspect='auto')
         plt.savefig(path + str(index) + '.png')
     
     def save_from_rightChannel(self, index, path):
-        """ Save a matrix from the right channel
+        """ Save a partialimage from the right channel
 
         Args:
-            index (int): index of matrix to save
+            index (int): index of partialimage to save
             path (str): path to save to
         """
         if not self.setted:
-            self.setted = self.setmatrixes()
+            self.setted = self.setpartialimagees()
         
-        plt.imshow(self._matrixes_right[index], cmap='gray', interpolation='nearest', aspect='auto')
+        plt.imshow(self._partialimagees_right[index], cmap='gray', interpolation='bilinear', aspect='auto')
         plt.savefig(path + str(index) + '.png')
     
     def save_all_from_leftChannel(self, path):
@@ -206,9 +206,9 @@ class Response(audiomessage):
             path (str): path to save to
         """
         if not self.setted:
-            self.setted = self.setmatrixes()
+            self.setted = self.setpartialimagees()
          
-        for i in range(len(self._matrixes_left)):
+        for i in range(len(self._partialimagees_left)):
             self.save_from_leftChannel(i, path)
 
     def save_all_from_rightChannel(self, path):
@@ -218,11 +218,27 @@ class Response(audiomessage):
             path (str): path to save to
         """
         if not self.setted:
-            self.setmatrixes()
+            self.setpartialimagees()
             self.setted = True
          
-        for i in range(len(self._matrixes_right)):
+        for i in range(len(self._partialimagees_right)):
             self.save_from_rightChannel(i, path)
 
-    
-    
+    def create_colored_image(path1, path2, path3, final_path):
+        """ Create a colored image from three grayscale images
+
+        Args:
+            path1 (str): path to first image
+            path2 (str): path to second image
+            path3 (str): path to third image
+            final_path (str): path to save to
+        """
+        r_np = imread(path1, IMREAD_GRAYSCALE)
+        g_np = imread(path2, IMREAD_GRAYSCALE)
+        b_np = imread(path3, IMREAD_GRAYSCALE)
+
+        # Add the channels to the final image
+        final_img = np.dstack([b_np, g_np*2, r_np]).astype(np.uint8)
+
+        # Save the needed multi channel image
+        imwrite(final_path, final_img)
