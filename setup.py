@@ -8,6 +8,7 @@ if __name__ == "__main__":
             'numpy',
             'pydub',
             'matplotlib',
+            'cv2',
             'importlib-metadata; python_version == "3.8"',
         ],
     )

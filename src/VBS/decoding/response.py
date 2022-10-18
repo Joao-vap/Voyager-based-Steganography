@@ -1,7 +1,7 @@
 from matplotlib import pyplot as plt
 import numpy as np
 from src.VBS.audiomessage import AudioMessage as audiomessage
-from cv2 import imread, imwrite, IMREAD_GRAYSCALE
+from cv2 import imread, imwrite, IMREAD_GRAYSCALE, cvtColor, COLOR_RGB2BGR
 
 class Response(audiomessage):
 
@@ -275,7 +275,7 @@ class Response(audiomessage):
         for i in range(len(self._partialimagees_right)):
             self.save_from_rightChannel(i, path)
 
-    def create_colored_image(path1, path2, path3, final_path) -> None:
+    def create_colored_image(self, path1, path2, path3, final_path) -> None:
         """ Create a colored image from three grayscale images
 
         Args:
@@ -289,7 +289,7 @@ class Response(audiomessage):
         b_np = imread(path3, IMREAD_GRAYSCALE)
 
         # Add the channels to the final image
-        final_img = np.dstack([b_np, g_np*2, r_np]).astype(np.uint8)
+        img = np.dstack([b_np, g_np, r_np]).astype(np.uint8)
 
-        # Save the needed multi channel image
-        imwrite(final_path, final_img)
+        # Save the needed multi channel image, without border and scale
+        imwrite(final_path, img)
