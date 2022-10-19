@@ -184,16 +184,16 @@ class Messenger(ABC):
             path (str): path to save mp3 file
             sr (int): sampling rate
         """
-        if len(self.message_left) > len(self.message_right):
-            diff = len(self.message_left) - len(self.message_right)
-            self.message_right = np.concatenate([self.message_right, np.zeros(diff)])
+        # if len(self.message_left) > len(self.message_right):
+        #     diff = len(self.message_left) - len(self.message_right)
+        #     self.message_right = np.concatenate([self.message_right, np.zeros(diff)])
 
         if channels == 2:
             left = pd.AudioSegment(self.message_left.astype(np.int32).tobytes(), frame_rate=fr, sample_width=sample_width, channels = 1)
             right = pd.AudioSegment(self.message_right.astype(np.int32).tobytes(), frame_rate=fr, sample_width=sample_width, channels = 1)
             song = pd.AudioSegment.from_mono_audiosegments(left, right)
         else:
-            x = np.concatenate[self.message_left, self.message_right]
+            x = np.concatenate([self.message_left, self.message_right])
             song = pd.AudioSegment(x.astype(np.int32).tobytes(), frame_rate=fr, sample_width=sample_width, channels=channels)
         
         # song = pd.AudioSegment(np.int16(x), frame_rate=fr, sample_width=sample_width, channels=channels)

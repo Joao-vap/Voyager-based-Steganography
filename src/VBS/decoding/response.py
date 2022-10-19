@@ -1,7 +1,8 @@
 from matplotlib import pyplot as plt
 import numpy as np
 from src.VBS.audiomessage import AudioMessage as audiomessage
-from cv2 import imread, imwrite, IMREAD_GRAYSCALE, cvtColor, COLOR_RGB2BGR
+from cv2 import imread, imwrite, IMREAD_GRAYSCALE
+import os
 
 class Response(audiomessage):
 
@@ -36,6 +37,7 @@ class Response(audiomessage):
         save_from_rigthChannel (None): save a partialimage from right channel
         save_all_from_leftChannel (None): save all partialimagees from left channel
         save_all_from_rigthChannel (None): save all partialimagees from right channel
+        save_all (None): save all partialimagees
         create_colored_image (None): Creates colored image with 3 paths RGB
 
     """
@@ -56,6 +58,10 @@ class Response(audiomessage):
         Returns:
             bool: True if partialimagees are setted
         '''
+
+        # if theres no data, return True
+        if self.message_left.size == 0:
+            return True
 
         # search for max value (divisor of images) at beggining
         if self.maxMagnitude == 0:
@@ -110,6 +116,10 @@ class Response(audiomessage):
         Returns:
             bool: True if partialimagees are setted
         '''
+
+        # if theres no data, return True
+        if self.message_right.size == 0:
+            return True
 
         # search for max value (divisor of images) at beggining
         if self.maxMagnitude == 0:
@@ -274,6 +284,24 @@ class Response(audiomessage):
          
         for i in range(len(self._partialimagees_right)):
             self.save_from_rightChannel(i, path)
+
+    def save_all(self, path) -> None:
+        """ Save all matrices
+
+        Args:
+            path (str): path to save to
+        """
+        # check if 1 or 2 channels
+        if self._partialimagees_right.shape[0] == 0:
+            self.save_all_from_leftChannel(path)
+        else:
+            # create folder for both channels
+            path_left = path + 'left/'
+            path_right = path + 'right/'
+            os.mkdir(path_left)
+            os.mkdir(path_right)
+            self.save_all_from_leftChannel(path_left)
+            self.save_all_from_rightChannel(path_right)
 
     def create_colored_image(self, path1, path2, path3, final_path) -> None:
         """ Create a colored image from three grayscale images

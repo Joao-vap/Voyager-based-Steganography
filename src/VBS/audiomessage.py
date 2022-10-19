@@ -68,9 +68,13 @@ class AudioMessage(messenger, ABC):
         Returns:
             np.ndarray: message from mp3 file
         """
-        # get message from mp3 file
-        mp3 = pd.AudioSegment.from_mp3(f"{file}")
-        left, right = mp3.split_to_mono()[0], mp3.split_to_mono()[1]
-        left = np.array(left.get_array_of_samples())
-        right = np.array(right.get_array_of_samples())
-        return [left, right]
+        # get message from mp3 file, check if stereo
+        audio = pd.AudioSegment.from_mp3(file)
+        if audio.channels == 2:
+            message_left = audio.split_to_mono()[0].get_array_of_samples()
+            message_right = audio.split_to_mono()[1].get_array_of_samples()
+        else:
+            message_left = audio.get_array_of_samples()
+            message_right = np.array([])
+        return [message_left, message_right]
+        
