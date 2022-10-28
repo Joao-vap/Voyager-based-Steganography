@@ -1,5 +1,6 @@
 from audioop import tostereo
 from email import message
+from email.mime import audio
 from src.VBS.decoding.response import Response
 from src.VBS.key import Key
 from src.VBS.encoding.send import Send
@@ -60,8 +61,8 @@ import cv2
 
 # # codify
 # resp = Send(images_path=['./image/1.png.jpg', './image/2.png.jpg', './image/3.png.jpg', './image/4.png.jpg', './image/5.png.jpg', './image/6.png.jpeg', './image/7.png.jpg', './image/8.png.jpg'])
-resp = Send(images_path=['./image/circle.png'])
-mp3_path = resp.create_mp3_file(path='./audio/circle.mp3', sample_width=1, channels=1)
+# resp = Send(images_path=['./image/circle.png'])
+# mp3_path = resp.create_mp3_file(path='./audio/circle.mp3', sample_width=1, channels=1)
 
 # mp3 = pd.AudioSegment.from_mp3('./audio/message_toSend.mp3')
 # left, right = mp3.split_to_mono()[0], mp3.split_to_mono()[1]
@@ -77,52 +78,96 @@ mp3_path = resp.create_mp3_file(path='./audio/circle.mp3', sample_width=1, chann
 # # message.plot_from_leftChannel(0)
 # message.save_all('./image/')
 
-message = Response(files_path=['./audio/circle.mp3'])
-message.save_all('./image/')
+# # # message = Response(files_path=['./audio/circle.mp3'])
+# # # message.save_all('./image/')
 
-# # use openCV to read the images
-# import cv2
-# r_np = cv2.imread('./image/decoded/right/0.png', cv2.IMREAD_GRAYSCALE)
-# g_np = cv2.imread('./image/decoded/right/1.png', cv2.IMREAD_GRAYSCALE)
-# b_np = cv2.imread('./image/decoded/right/2.png', cv2.IMREAD_GRAYSCALE)
+# # # # use openCV to read the images
+# # # import cv2
+# # # r_np = cv2.imread('./image/decoded/right/0.png', cv2.IMREAD_GRAYSCALE)
+# # # g_np = cv2.imread('./image/decoded/right/1.png', cv2.IMREAD_GRAYSCALE)
+# # # b_np = cv2.imread('./image/decoded/right/2.png', cv2.IMREAD_GRAYSCALE)
 
-# # Add the channels to the final image
-# final_img = np.dstack([b_np, g_np, r_np]).astype(np.uint8)
+# # # # # Add the channels to the final image
+# # # # final_img = np.dstack([b_np, g_np, r_np]).astype(np.uint8)
 
-# # Save the needed multi channel image
-# cv2.imwrite('./image/decoded/img.png', final_img)
+# # # # # Save the needed multi channel image
+# # # # cv2.imwrite('./image/decoded/img.png', final_img)
 
 
-# #######################################################################
+# # # # #######################################################################
 
 # # list of 10 images of interest
 
-# images = ['./pp/imgs/1.png', './pp/imgs/2.png', './pp/imgs/3.png', './pp/imgs/4.png', './pp/imgs/5.png', './pp/imgs/6.png', './pp/imgs/7.png', './pp/imgs/8.png', './pp/imgs/9.png', './pp/imgs/10.png']
+# images = ['./pp/imgs/0.png', './pp/imgs/5.jpg', './pp/imgs/1.png',  './pp/imgs/6.jpg', './pp/imgs/2.png', './pp/imgs/7.jpg', './pp/imgs/3.jpg', './pp/imgs/8.jpg', './pp/imgs/4.jpg' , './pp/imgs/9.jpg']
 
 # # for images 2-10 we make a greyscale image
 
-# for i in range(2,10):
-#     img = cv2.imread(images[i], cv2.IMREAD_GRAYSCALE)
+# if not os.path.exists('./pp/imgs/grey'):
 #     os.mkdir('./pp/imgs/grey')
+
+# for i in range(0, 9):
+#     img = cv2.imread(images[i], cv2.IMREAD_GRAYSCALE)
 #     cv2.imwrite('./pp/imgs/grey/'+str(i)+'.png', img)
+#     images[i] = './pp/imgs/grey/'+str(i)+'.png'
 
-# # we now create a list of the images to be sent
-
-# images = ['./pp/imgs/1.png', './pp/imgs/grey/2.png', './pp/imgs/grey/3.png', './pp/imgs/grey/4.png', './pp/imgs/grey/5.png', './pp/imgs/grey/6.png', './pp/imgs/grey/7.png', './pp/imgs/grey/8.png', './pp/imgs/grey/9.png', './pp/imgs/grey/10.png']
 # # we now create the message to be sent
 
 # resp = Send(images_path=images)
 
 # # we now create the mp3 file
 
-# os.mkdir('./pp/audio/')
-# mp3_path = resp.create_mp3_file(path='./pp/audio/message_toSend.mp3', sample_width=1, channels=1)
+# if not os.path.exists('./pp/audio'):
+#     os.mkdir('./pp/audio')
 
-# # we now test the decoding of the message
+audio_path = './pp/audio/coded_message.mp3'
 
-# message = Response(files_path=['./pp/audio/message_toSend.mp3'])
+# mp3_path = resp.create_mp3_file(path=audio_path, sample_width=1, channels=1)
 
-# # we now save the images
+# we now test the decoding of the message
 
-# os.mkdir('./pp/decoded/')
-# message.save_all('./pp/decoded/')
+message = Response(files_path=[audio_path])
+
+# we now save the images
+
+if not os.path.exists('./pp/decoded'):
+    os.mkdir('./pp/decoded/')
+
+message.save_all('./pp/decoded/')
+
+message.create_colored_image('./pp/decoded/9.png', './pp/decoded/10.png', './pp/decoded/11.png', './pp/decoded/img.png')
+
+#########################################################################
+
+# upload image
+
+# from PIL import Image
+
+# file = './image/1.png.jpg'
+# image = Image.open(file)
+# image = image.resize((512, 384), Image.ANTIALIAS)
+# image.save(f'{file[:-4]}_resized.png')
+# image = Image.open(f'{file[:-4]}_resized.png')
+# print(image.size)
+# arr = np.array(image) 
+# scale = np.frompyfunc(lambda x, xmax, xmin: ((x-xmin)*100/(xmax-xmin))-50, 3, 1)
+# # check if image is in grayscale
+# if len(arr.shape) == 3:
+#     print('color')
+#     arr_r = arr[:, :, 2].flatten()
+#     arr_r = scale(arr_r, 255, 0)
+#     arr_g = arr[:, :, 1].flatten()
+#     arr_g = scale(arr_g, 255, 0)
+#     arr_b = arr[:, :, 0].flatten()      
+#     arr_b = scale(arr_b, 255, 0)
+#     arr = np.dstack([arr_r, arr_g, arr_b]).astype(np.uint8)
+# else:
+#     print('grayscale')
+#     arr = arr.flatten()
+#     arr = scale(arr, 255, 0)
+
+# plt.imshow(arr, cmap = ', interpolation='nearest')
+# plt.show()
+
+
+
+

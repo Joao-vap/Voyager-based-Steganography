@@ -1,7 +1,7 @@
 from matplotlib import pyplot as plt
 import numpy as np
 from src.VBS.audiomessage import AudioMessage as audiomessage
-from cv2 import imread, imwrite, IMREAD_GRAYSCALE
+from cv2 import imread, imwrite, IMREAD_GRAYSCALE, merge
 import os
 
 class Response(audiomessage):
@@ -218,7 +218,7 @@ class Response(audiomessage):
         if not self.setted:
             self.setted = self.setpartialimagees()
 
-        plt.imshow(self._partialimagees_left[index], cmap='gray', interpolation='bilinear', aspect='auto')
+        plt.imshow(self._partialimagees_left[index], cmap='gray', interpolation='bilinear', aspect='auto', vmin=0, vmax=255)
         plt.show()
 
     def plot_from_rightChannel(self, index) -> None:
@@ -231,7 +231,7 @@ class Response(audiomessage):
             self.setted = self.setpartialimagees()
 
         # set aspect to 384/2048
-        plt.imshow(self._partialimagees_right[index], cmap='gray', interpolation='bilinear', aspect='auto')
+        plt.imshow(self._partialimagees_right[index], cmap='gray', interpolation='bilinear', aspect='auto', vmin=0, vmax=255)
         plt.show()
     
     def save_from_leftChannel(self, index, path) -> None:
@@ -243,9 +243,10 @@ class Response(audiomessage):
         """
         if not self.setted:
             self.setted = self.setpartialimagees()
-         
-        plt.imshow(self._partialimagees_left[index], cmap='gray', interpolation='bilinear', aspect='auto')
-        plt.savefig(path + str(index) + '.png')
+
+        plt.imshow(self._partialimagees_left[index], cmap='gray', interpolation='antialiased', aspect='auto', vmin=0, vmax=255)
+        plt.axis('off')
+        plt.savefig(path + str(index) + '.png', bbox_inches='tight', pad_inches=0)
     
     def save_from_rightChannel(self, index, path) -> None:
         """ Save a partialimage from the right channel
@@ -257,8 +258,9 @@ class Response(audiomessage):
         if not self.setted:
             self.setted = self.setpartialimagees()
         
-        plt.imshow(self._partialimagees_right[index], cmap='gray', interpolation='bilinear', aspect='auto')
-        plt.savefig(path + str(index) + '.png')
+        plt.imshow(self._partialimagees_right[index], cmap='gray', interpolation='bilinear', aspect='auto', vmin=0, vmax=255)
+        plt.axis('off')
+        plt.savefig(path + str(index) + '.png', bbox_inches='tight', pad_inches=0)
     
     def save_all_from_leftChannel(self, path) -> None:
         """ Save all matrices from the left channel
@@ -312,12 +314,12 @@ class Response(audiomessage):
             path3 (str): path to third image
             final_path (str): path to save to
         """
-        r_np = imread(path1, IMREAD_GRAYSCALE)
-        g_np = imread(path2, IMREAD_GRAYSCALE)
-        b_np = imread(path3, IMREAD_GRAYSCALE)
+        r_np = imread(path1, 0)
+        g_np = imread(path2, 0)
+        b_np = imread(path3, 0)
 
         # Add the channels to the final image
-        img = np.dstack([b_np, g_np, r_np]).astype(np.uint8)
+        img = merge([b_np, g_np, r_np])
 
         # Save the needed multi channel image, without border and scale
         imwrite(final_path, img)
