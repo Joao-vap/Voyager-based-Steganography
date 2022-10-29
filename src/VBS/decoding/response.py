@@ -1,7 +1,7 @@
 from matplotlib import pyplot as plt
 import numpy as np
 from src.VBS.audiomessage import AudioMessage as audiomessage
-from cv2 import imread, imwrite, IMREAD_GRAYSCALE, merge
+from PIL import Image
 import os
 
 class Response(audiomessage):
@@ -233,7 +233,37 @@ class Response(audiomessage):
         # set aspect to 384/2048
         plt.imshow(self._partialimagees_right[index], cmap='gray', interpolation='bilinear', aspect='auto', vmin=0, vmax=255)
         plt.show()
-    
+
+    def plot_from_leftChannel_PIL(self, index) -> None:
+        """ Plot a partialimage from the left channel
+
+        Args:
+            index (int): index of partialimage to plot
+        """
+        if not self.setted:
+            self.setted = self.setpartialimagees()
+
+        vector = self._partialimagees_left[index].astype(np.uint8)
+        img = Image.fromarray(vector, 'L')
+        img = img.resize((512, 384))
+        img.show()
+
+
+    def plot_from_rightChannel_PIL(self, index) -> None:
+        """ Plot a partialimage from the right channel
+
+        Args:
+            index (int): index of partialimage to plot
+        """
+        if not self.setted:
+            self.setted = self.setpartialimagees()
+
+        vector = self._partialimagees_right[index].astype(np.uint8)
+        img = Image.fromarray(vector, 'L')
+        img = img.resize((512, 384))
+        img.show()
+
+
     def save_from_leftChannel(self, index, path) -> None:
         """ Save a partialimage from the left channel
 
@@ -261,6 +291,36 @@ class Response(audiomessage):
         plt.imshow(self._partialimagees_right[index], cmap='gray', interpolation='bilinear', aspect='auto', vmin=0, vmax=255)
         plt.axis('off')
         plt.savefig(path + str(index) + '.png', bbox_inches='tight', pad_inches=0)
+
+    def save_from_leftChannel_PIL(self, index, path) -> None:
+        """ Save a partialimage from the left channel
+
+        Args:
+            index (int): index of partialimage to save
+            path (str): path to save to
+        """
+        if not self.setted:
+            self.setted = self.setpartialimagees()
+
+        vector = self._partialimagees_left[index].astype(np.uint8)
+        img = Image.fromarray(vector, 'L')
+        img = img.resize((512, 384))
+        img.save(path + str(index) + '.png')
+
+    def save_from_rightChannel_PIL(self, index, path) -> None:
+        """ Save a partialimage from the right channel
+
+        Args:
+            index (int): index of partialimage to save
+            path (str): path to save to
+        """
+        if not self.setted:
+            self.setted = self.setpartialimagees()
+
+        vector = self._partialimagees_right[index].astype(np.uint8)
+        img = Image.fromarray(vector, 'L')
+        img = img.resize((512, 384))
+        img.save(path + str(index) + '.png')
     
     def save_all_from_leftChannel(self, path) -> None:
         """ Save all matrices from the left channel
@@ -287,6 +347,31 @@ class Response(audiomessage):
         for i in range(len(self._partialimagees_right)):
             self.save_from_rightChannel(i, path)
 
+    def save_all_from_leftChannel_PIL(self, path) -> None:
+        """ Save all matrices from the left channel
+
+        Args:
+            path (str): path to save to
+        """
+        if not self.setted:
+            self.setted = self.setpartialimagees()
+         
+        for i in range(len(self._partialimagees_left)):
+            self.save_from_leftChannel_PIL(i, path)
+        
+    def save_all_from_rightChannel_PIL(self, path) -> None:
+        """ Save all matrices from the right channel
+
+        Args:
+            path (str): path to save to
+        """
+        if not self.setted:
+            self.setted = self.setpartialimagees()
+         
+        for i in range(len(self._partialimagees_right)):
+            self.save_from_rightChannel_PIL(i, path)
+
+
     def save_all(self, path) -> None:
         """ Save all matrices
 
@@ -295,7 +380,9 @@ class Response(audiomessage):
         """
         # check if 1 or 2 channels
         if self._partialimagees_right.shape[0] == 0:
-            self.save_all_from_leftChannel(path)
+            path_left = path + 'left/'
+            os.mkdir(path_left)
+            self.save_all_from_leftChannel(path_left)
         else:
             # create folder for both channels
             path_left = path + 'left/'
@@ -304,6 +391,26 @@ class Response(audiomessage):
             os.mkdir(path_right)
             self.save_all_from_leftChannel(path_left)
             self.save_all_from_rightChannel(path_right)
+
+    def save_all_PIL(self, path) -> None:
+        """ Save all matrices
+
+        Args:
+            path (str): path to save to
+        """
+        # check if 1 or 2 channels
+        if self._partialimagees_right.shape[0] == 0:
+            path_left = path + 'left/'
+            os.mkdir(path_left)
+            self.save_all_from_leftChannel_PIL(path_left)
+        else:
+            # create folder for both channels
+            path_left = path + 'left/'
+            path_right = path + 'right/'
+            os.mkdir(path_left)
+            os.mkdir(path_right)
+            self.save_all_from_leftChannel_PIL(path_left)
+            self.save_all_from_rightChannel_PIL(path_right)
 
     def create_colored_image(self, path1, path2, path3, final_path) -> None:
         """ Create a colored image from three grayscale images
@@ -314,12 +421,12 @@ class Response(audiomessage):
             path3 (str): path to third image
             final_path (str): path to save to
         """
-        r_np = imread(path1, 0)
-        g_np = imread(path2, 0)
-        b_np = imread(path3, 0)
+        r_np = Image.open(path1, 'r')
+        g_np = Image.open(path2 , 'r')
+        b_np = Image.open(path3 , 'r')
 
         # Add the channels to the final image
-        img = merge([b_np, g_np, r_np])
+        img = Image.merge('RGB', (r_np, g_np, b_np))
 
         # Save the needed multi channel image, without border and scale
-        imwrite(final_path, img)
+        img.save(final_path)
